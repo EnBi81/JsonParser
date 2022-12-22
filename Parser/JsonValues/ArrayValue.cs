@@ -1,4 +1,6 @@
-﻿namespace Parser.JsonValues;
+﻿using System.Collections.Generic;
+
+namespace Parser.JsonValues;
 
 public class ArrayValue : IJsonValue
 {
