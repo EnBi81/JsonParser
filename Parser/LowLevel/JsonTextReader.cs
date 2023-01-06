@@ -209,14 +209,31 @@ internal class JsonTextReader
         StringBuilder builder = new StringBuilder();
         
         int readByte = 0;
-        int prevByte;
         while (ReadNextByte())
         {
-            prevByte = readByte;
             readByte = currentByte;
-            
+
+            // if the current byte is a start of an escape character, read the next character as well
+            if (currentByte is '\\')
+            {
+                if (!ReadNextByte())
+                    throw new Exception("Unexpected end of stream");
+
+                // https://www.tutorialspoint.com/json_simple/json_simple_escape_characters.htm
+                readByte = currentByte switch
+                {
+                    'b' => '\b',
+                    'f' => '\f',
+                    'n' => '\n',
+                    'r' => '\r',
+                    't' => '\t',
+                    '\"' => '\"',
+                    '\\' => '\\',
+                    _ => throw new ArgumentException("Invalid escape character: \\" + (char)currentByte)
+                };
+            }
             // break if string ends
-            if (readByte == stringStartChar && prevByte != '\\')
+            else if (readByte == stringStartChar)
                 break;
             
             builder.Append((char)readByte);
