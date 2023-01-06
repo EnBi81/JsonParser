@@ -10,6 +10,9 @@ public class JsonAnalyzer
 {
     private readonly JsonDocumentIterator _documentIterator;
 
+    /// <summary>
+    /// Iterators, only loaded after <see cref="Analyze"/> has been called
+    /// </summary>
     public IEnumerable<ArrayValue> Iterators => _iterators;
     private List<ArrayValue> _iterators = new ();
 
@@ -18,6 +21,11 @@ public class JsonAnalyzer
         _documentIterator = new JsonDocumentIterator(stream);
     }
 
+    /// <summary>
+    /// Analyzes the json stream by saving the static objects into the memory, and the first 100 values of each of the
+    /// the main iterators found.
+    /// </summary>
+    /// <returns></returns>
     public IJsonValue Analyze()
     {
         IJsonValue rootObj = _documentIterator.Parse();

@@ -10,10 +10,10 @@ using Parser;
 using Parser.JsonValues;
 
 
+
 string testJson = """
 {
-	
-	"character": "varv\\",
+	"character": "va\u0072",
 	"obj": {
 		"randkey": "hello12345\"",
 		"second": {

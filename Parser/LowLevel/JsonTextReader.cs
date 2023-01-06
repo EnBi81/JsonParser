@@ -220,6 +220,7 @@ internal class JsonTextReader
                     throw new Exception("Unexpected end of stream");
 
                 // https://www.tutorialspoint.com/json_simple/json_simple_escape_characters.htm
+                // https://www.crockford.com/mckeeman.html
                 readByte = currentByte switch
                 {
                     'b' => '\b',
@@ -229,6 +230,7 @@ internal class JsonTextReader
                     't' => '\t',
                     '\"' => '\"',
                     '\\' => '\\',
+                    'u' => FinishReadingEscapeUnicode(),
                     _ => throw new ArgumentException("Invalid escape character: \\" + (char)currentByte)
                 };
             }
@@ -240,5 +242,24 @@ internal class JsonTextReader
         }
         
         return builder.ToString();
+    }
+
+    /// <summary>
+    /// 'U' must be read beforehand
+    /// </summary>
+    /// <returns></returns>
+    private char FinishReadingEscapeUnicode()
+    {
+        StringBuilder builder = new ();
+        for (int i = 0; i < 4; i++)
+        {
+            ReadNextByte(); // read the 4 characters in
+            builder.Append((char)currentByte);
+        }
+        
+        // convert text to hexadecimal number
+        var arr = Convert.FromHexString(builder.ToString()); 
+        // convert the two return bytes into one character
+        return (char)((arr[0] << 8) | arr[1]); 
     }
 }
