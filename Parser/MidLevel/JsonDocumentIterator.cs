@@ -1,4 +1,5 @@
-﻿using Parser.Analyzer.Enums;
+﻿using System.Text;
+using Parser.Analyzer.Enums;
 using Parser.JsonValues;
 
 namespace Parser;
@@ -14,7 +15,7 @@ public class JsonDocumentIterator
 
     public IJsonValue Parse()
     {
-        return ReadValue("", "", 0, JsonMemberType.Static);
+        return ReadValue( propertyName: "", absolutePath: "$", lookUpPath: "$", depth: 0, parentMemberType: JsonMemberType.Static);
     }
 
     private static string JoinPath(string path, string name)
@@ -30,7 +31,7 @@ public class JsonDocumentIterator
     /// <param name="absolutePath"></param>
     /// <param name="depth">the depth of this object</param>
     /// <returns></returns>
-    private IEnumerable<IJsonValue> ParseObject(string absolutePath, int depth, JsonMemberType currentMemberType)
+    private IEnumerable<IJsonValue> ParseObject(string absolutePath, string lookUpPath, int depth, JsonMemberType currentMemberType)
     {
         while (reader.ReadNextToken())
         {
@@ -42,9 +43,11 @@ public class JsonDocumentIterator
             if (reader.CurrentToken is JsonReadToken.PropertyName)
             {
                 string name = (string)reader.CurrentValue!;
-                string path = JoinPath(absolutePath, name);
+                string pathName = "['" + name + "']";
+                string newAbsolutePath = absolutePath + pathName;
+                string newLookUpPath = lookUpPath + pathName;
                 
-                yield return ReadValue(name, path, depth, currentMemberType); 
+                yield return ReadValue(name, newAbsolutePath, newLookUpPath, depth, currentMemberType);
             }
         }
     }
@@ -55,16 +58,18 @@ public class JsonDocumentIterator
     /// <param name="absolutePath"></param>
     /// <param name="depth">the depth of this object</param>
     /// <returns></returns>
-    private IEnumerable<IJsonValue> ParseArray(string absolutePath, int depth, JsonMemberType currentMemberType)
+    private IEnumerable<IJsonValue> ParseArray(string absolutePath, string lookUpPath, int depth, JsonMemberType currentMemberType)
     {
+        string newLookUpPath = lookUpPath + "[" + "_" + "]";
         int count = 0;
         while (true)
         {
             IJsonValue value;
             try
             {
-                string path = JoinPath(absolutePath, count + "");
-                value = ReadValue(count + "", path, depth, currentMemberType);
+                string name = count + "";
+                string newAbsolutePath = absolutePath + "[" + name + "]";
+                value = ReadValue(name, newAbsolutePath, newLookUpPath, depth, currentMemberType);
                 count++;
             }
             catch (Exception)
@@ -81,7 +86,7 @@ public class JsonDocumentIterator
     /// </summary>
     /// <param name="depth">the depth of this object</param>
     /// <returns></returns>
-    private IJsonValue ReadValue(string propertyName, string absolutePath, int depth, JsonMemberType parentMemberType)
+    private IJsonValue ReadValue(string propertyName, string absolutePath, string lookUpPath, int depth, JsonMemberType parentMemberType)
     {
         if(!reader.ReadNextToken())
             throw new Exception("Unexpected end of stream");
@@ -101,21 +106,21 @@ public class JsonDocumentIterator
         if (currentToken is JsonReadToken.Number)
         {
             var value = (double)reader.CurrentValue!;
-            return new NumberValue(propertyName, absolutePath, value, newDepth, newMemberType);
+            return new NumberValue(propertyName, absolutePath, lookUpPath, value, newDepth, newMemberType);
         }
         if (currentToken is JsonReadToken.String)
         {
             var value = (string)reader.CurrentValue!;
-            return new StringValue(propertyName, absolutePath, value, newDepth, newMemberType);
+            return new StringValue(propertyName, absolutePath, lookUpPath, value, newDepth, newMemberType);
         }
         if (currentToken is JsonReadToken.Bool)
         {
             var value = (bool)reader.CurrentValue!;
-            return new BoolValue(propertyName, absolutePath, value, newDepth, newMemberType);
+            return new BoolValue(propertyName, absolutePath, lookUpPath, value, newDepth, newMemberType);
         }
         if (currentToken is JsonReadToken.Null)
         {
-            return new NullValue(propertyName, absolutePath, newDepth, newMemberType);
+            return new NullValue(propertyName, absolutePath, lookUpPath, newDepth, newMemberType);
         }
         if (currentToken is JsonReadToken.StartArray)
         {
@@ -128,13 +133,13 @@ public class JsonDocumentIterator
                 _ => throw new NotImplementedException("Member type " + parentMemberType + " is not implemented")
             };
             
-            IEnumerable<IJsonValue> enumerable = ParseArray(absolutePath, newDepth, arrayMemberType);
-            return new ArrayValue(propertyName, absolutePath, enumerable, newDepth, arrayMemberType);
+            IEnumerable<IJsonValue> enumerable = ParseArray(absolutePath, lookUpPath, newDepth, arrayMemberType);
+            return new ArrayValue(propertyName, absolutePath, lookUpPath, enumerable, newDepth, arrayMemberType);
         }
         if (currentToken is JsonReadToken.StartObject)
         {
-            IEnumerable<IJsonValue> enumerable = ParseObject(absolutePath, newDepth, newMemberType);
-            return new ObjectValue(propertyName, absolutePath, enumerable, newDepth, newMemberType);
+            IEnumerable<IJsonValue> enumerable = ParseObject(absolutePath, lookUpPath, newDepth, newMemberType);
+            return new ObjectValue(propertyName, absolutePath, lookUpPath, enumerable, newDepth, newMemberType);
         }
         
         throw new Exception("Unexpected token: " + currentToken);

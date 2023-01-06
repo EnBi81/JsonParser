@@ -13,6 +13,7 @@ public interface IJsonValue
 {
     public string? Name { get; }
     public string FullPath { get; }
+    public string LookUpPath { get; }
     public JsonValueType Type { get; }
     public int Depth { get; }
     public JsonMemberType JsonMemberType { get; }

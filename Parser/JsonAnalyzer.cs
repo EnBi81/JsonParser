@@ -35,7 +35,7 @@ public class JsonAnalyzer
         {
             // load the first 100 objects into the memory
             ICollection<IJsonValue> memoryObjects = RetrieveMemoryIteratorObjects(arr, 100);
-            var newArray = new ArrayValue(arr.Name, arr.FullPath, memoryObjects, arr.Depth, arr.JsonMemberType);
+            var newArray = new ArrayValue(arr.Name, arr.FullPath, arr.LookUpPath, memoryObjects, arr.Depth, arr.JsonMemberType);
             _iterators.Add(newArray);
             return newArray;
         }
@@ -56,7 +56,7 @@ public class JsonAnalyzer
             memoryValues.Add(memoryJsonValue);
         }
 
-        return new ObjectValue(obj.Name, obj.FullPath, memoryValues, obj.Depth, obj.JsonMemberType);
+        return new ObjectValue(obj.Name, obj.FullPath, obj.LookUpPath, memoryValues, obj.Depth, obj.JsonMemberType);
     }
 
     /// <summary>
@@ -118,10 +118,10 @@ public class JsonAnalyzer
         }
 
         if (jsonValue is ArrayValue arr)
-            return new ArrayValue(arr.Name, arr.FullPath, memoryValues, arr.Depth, arr.JsonMemberType);
+            return new ArrayValue(arr.Name, arr.FullPath, arr.LookUpPath, memoryValues, arr.Depth, arr.JsonMemberType);
 
         if (jsonValue is ObjectValue obj)
-            return new ObjectValue(obj.Name, obj.FullPath, memoryValues, obj.Depth, obj.JsonMemberType);
+            return new ObjectValue(obj.Name, obj.FullPath, obj.LookUpPath, memoryValues, obj.Depth, obj.JsonMemberType);
 
         throw new Exception("Unexpected json value: " + jsonValue);
     }

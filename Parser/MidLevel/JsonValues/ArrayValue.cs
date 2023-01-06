@@ -7,7 +7,8 @@ public class ArrayValue : JsonValueAbs
 {
     public IEnumerable<IJsonValue> Values { get; }
 
-    public ArrayValue(string name, string path, IEnumerable<IJsonValue> values, int depth, JsonMemberType memberType) : base(name, path, JsonValueType.Array, depth, memberType)
+    public ArrayValue(string name, string path, string lookUpPath, IEnumerable<IJsonValue> values, int depth, JsonMemberType memberType) :
+        base(name, path,  lookUpPath, JsonValueType.Array, depth, memberType)
     {
         Values = values;
     }

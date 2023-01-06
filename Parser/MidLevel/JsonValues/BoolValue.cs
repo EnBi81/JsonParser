@@ -6,7 +6,8 @@ public class BoolValue : JsonValueAbs
 {
     public bool Value { get; }
 
-    public BoolValue(string name, string path, bool value, int depth, JsonMemberType memberType) : base(name, path, JsonValueType.Boolean, depth, memberType)
+    public BoolValue(string name, string path, string lookUpPath, bool value, int depth, JsonMemberType memberType) : 
+        base(name, path,  lookUpPath, JsonValueType.Boolean, depth, memberType)
     {
         Value = value;
     }

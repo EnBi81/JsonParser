@@ -4,7 +4,8 @@ namespace Parser.JsonValues;
 
 public class NullValue : JsonValueAbs
 {
-    public NullValue(string name, string fullPath, int depth, JsonMemberType memberType) : base(name, fullPath, JsonValueType.Null, depth, memberType)
+    public NullValue(string name, string fullPath, string lookUpPath, int depth, JsonMemberType memberType) :
+        base(name, fullPath, lookUpPath, JsonValueType.Null, depth, memberType)
     {
     }
 }
