@@ -4,7 +4,7 @@ namespace Parser.JsonValues;
 
 public abstract class JsonValueAbs : IJsonValue
 {
-    public string? Name { get; }
+    public string Name { get; }
     public string FullPath { get; }
     public JsonValueType Type { get; }
     public int Depth { get; }
