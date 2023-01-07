@@ -21,20 +21,6 @@ internal class JsonTextReader
     /// Current value of the token
     /// </summary>
     public object? CurrentValue { get; private set; }
-    /// <summary>
-    /// Depth of the current token
-    /// </summary>
-    public int Depth
-    {
-        get
-        {
-            if (CurrentToken is JsonReadToken.StartObject or JsonReadToken.StartArray)
-                return _depth - 1;
-            return _depth;
-        }
-    }
-
-    private int _depth;
 
 
     public JsonTextReader(Stream stream)
@@ -54,13 +40,11 @@ internal class JsonTextReader
     /// <returns></returns>
     public bool ReadNextToken()
     {
-        int nextByte;
-        
         while (!shouldReadNextByte || ReadNextByte())
         {
             shouldReadNextByte = true;
             
-            nextByte = currentByte;
+            int nextByte = currentByte;
             CurrentValue = null;
             
             // skip the whitespace and unnecessary characters
@@ -70,14 +54,12 @@ internal class JsonTextReader
             // object
             if (nextByte == '{')
             {
-                _depth++;
                 CurrentToken = JsonReadToken.StartObject;
                 return true;
             }
 
             if (nextByte == '}')
             {
-                _depth--;
                 CurrentToken = JsonReadToken.EndObject;
                 return true;
             }
@@ -85,14 +67,12 @@ internal class JsonTextReader
             // array
             if (nextByte == '[')
             {
-                _depth++;
                 CurrentToken = JsonReadToken.StartArray;
                 return true;
             }
             
             if (nextByte == ']')
             {
-                _depth--;
                 CurrentToken = JsonReadToken.EndArray;
                 return true;
             }
@@ -182,15 +162,14 @@ internal class JsonTextReader
 
     private double FinishReadingNumber()
     {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         
         builder.Append((char)currentByte);
-        
-        
-        char readByte;
+
+
         while (ReadNextByte())
         {
-            readByte = (char)currentByte;
+            var readByte = (char)currentByte;
             
             // break if number ends
             if (readByte is < '0' or > '9' and not '.')
@@ -204,12 +183,11 @@ internal class JsonTextReader
 
     private string FinishReadingString(char stringStartChar)
     {
-        StringBuilder builder = new StringBuilder();
-        
-        int readByte = 0;
+        var builder = new StringBuilder();
+
         while (ReadNextByte())
         {
-            readByte = currentByte;
+            int readByte = currentByte;
 
             // if the current byte is a start of an escape character, read the next character as well
             if (currentByte is '\\')

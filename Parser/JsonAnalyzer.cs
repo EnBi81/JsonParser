@@ -70,10 +70,10 @@ public class JsonAnalyzer
     /// <param name="arrayValue"></param>
     /// <param name="objectsToSave"></param>
     /// <returns></returns>
-    private ICollection<IJsonValue> RetrieveMemoryIteratorObjects(ArrayValue arrayValue, int objectsToSave)
+    private static ICollection<IJsonValue> RetrieveMemoryIteratorObjects(ArrayValue arrayValue, int objectsToSave)
     {
         int count = 0;
-        List<IJsonValue> values = new List<IJsonValue>();
+        var values = new List<IJsonValue>();
         
         foreach (IJsonValue value in arrayValue.Values)
         {
@@ -100,7 +100,7 @@ public class JsonAnalyzer
     /// <param name="jsonValue"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private IJsonValue LoadObjectToMemory(IJsonValue jsonValue)
+    private static IJsonValue LoadObjectToMemory(IJsonValue jsonValue)
     {
         // check if jsonValue is either a full object or an array
         IEnumerable<IJsonValue>? values = jsonValue switch
@@ -122,19 +122,20 @@ public class JsonAnalyzer
             memoryValues.Add(memoryValue);
         }
 
-        if (jsonValue is ArrayValue arr)
-            return new ArrayValue(arr.Name, arr.FullPath, arr.LookUpPath, memoryValues, arr.Depth, arr.JsonMemberType);
-
-        if (jsonValue is ObjectValue obj)
-            return new ObjectValue(obj.Name, obj.FullPath, obj.LookUpPath, memoryValues, obj.Depth, obj.JsonMemberType);
-
-        throw new Exception("Unexpected json value: " + jsonValue);
+        return jsonValue switch
+        {
+            ArrayValue arr => new ArrayValue(arr.Name, arr.FullPath, arr.LookUpPath, memoryValues, arr.Depth,
+                arr.JsonMemberType),
+            ObjectValue obj => new ObjectValue(obj.Name, obj.FullPath, obj.LookUpPath, memoryValues, obj.Depth,
+                obj.JsonMemberType),
+            _ => throw new Exception("Unexpected json value: " + jsonValue)
+        };
     }
 
     /// <summary>
     /// Runs through a json object but doesn't save it to the memory
     /// </summary>
-    private void RunThroughJson(IJsonValue jsonValue)
+    private static void RunThroughJson(IJsonValue jsonValue)
     {
         // check if jsonValue is either a full object or an array
         IEnumerable<IJsonValue>? values = jsonValue switch
