@@ -15,7 +15,11 @@ public enum JsonMemberType
     /// </summary>
     Instance, 
     /// <summary>
-    /// The json member is in an iterator and is multivalued (list of a list)
+    /// The json member is a sub iterator (iterator inside an iterator
+    /// </summary>
+    MultiValuedIterator,
+    /// <summary>
+    /// The json member is inside an MultiValuedIterator
     /// </summary>
     MultiValuedInstance
 }

@@ -99,6 +99,7 @@ public class JsonDocumentIterator
             JsonMemberType.Static => JsonMemberType.Static,
             JsonMemberType.Iterator => JsonMemberType.Instance,
             JsonMemberType.Instance => JsonMemberType.Instance,
+            JsonMemberType.MultiValuedIterator => JsonMemberType.MultiValuedInstance,
             JsonMemberType.MultiValuedInstance => JsonMemberType.MultiValuedInstance,
             _ => throw new NotImplementedException("Member type " + parentMemberType + " is not implemented")
         };
@@ -127,9 +128,10 @@ public class JsonDocumentIterator
             JsonMemberType arrayMemberType = parentMemberType switch
             {
                 JsonMemberType.Static => JsonMemberType.Iterator,
-                JsonMemberType.Iterator => JsonMemberType.MultiValuedInstance,
-                JsonMemberType.Instance => JsonMemberType.MultiValuedInstance,
-                JsonMemberType.MultiValuedInstance => JsonMemberType.MultiValuedInstance,
+                JsonMemberType.Iterator => JsonMemberType.MultiValuedIterator,
+                JsonMemberType.Instance => JsonMemberType.MultiValuedIterator,
+                JsonMemberType.MultiValuedIterator => JsonMemberType.MultiValuedIterator,
+                JsonMemberType.MultiValuedInstance => JsonMemberType.MultiValuedIterator,
                 _ => throw new NotImplementedException("Member type " + parentMemberType + " is not implemented")
             };
             
