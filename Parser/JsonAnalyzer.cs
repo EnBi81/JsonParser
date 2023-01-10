@@ -3,6 +3,11 @@ using Parser.JsonValues;
 
 namespace Parser;
 
+/// <summary>
+/// Analyzes a JSON document from a stream and returns the analyzed root object, from which you can
+/// traverse the whole document. The returned root object, all the other static objects and the iterators with their
+/// first 100 values are loaded into the memory.
+/// </summary>
 public class JsonAnalyzer
 {
     private readonly JsonDocumentIterator _documentIterator;
@@ -20,7 +25,7 @@ public class JsonAnalyzer
 
     /// <summary>
     /// Analyzes the json stream by saving the static objects into the memory, and the first 100 values of each of the
-    /// the main iterators found.
+    /// the main iterators found. Should be called once per Stream.
     /// </summary>
     /// <returns></returns>
     public IJsonValue Analyze()
@@ -145,7 +150,7 @@ public class JsonAnalyzer
             _ => null
         };
 
-        // if not, then move forward
+        // if not, that means there is no more iterator to call
         if (values is null)
             return;
 

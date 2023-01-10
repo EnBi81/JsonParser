@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Text;
+using System.Text.Json;
 using Parser;
 using Parser.JsonValues;
 
@@ -55,26 +56,11 @@ Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(testJson));
 //Stream stream = FromFile();
 
 
-/*
 var jsonAnalyzer = new JsonAnalyzer(stream);
 IJsonValue analyzed = jsonAnalyzer.Analyze();
 
-var text = JsonSerializer.Serialize(analyzed, options: new JsonSerializerOptions
-{
-    WriteIndented = true
-});
-Print(text);
-
-await Task.Delay(-1);
-
 
 Print("Number of iterators: " + jsonAnalyzer.Iterators.Count());
-foreach (ArrayValue iterator in jsonAnalyzer.Iterators)
-{
-    Print("Iterator: " + iterator.FullPath);
-    PrintArray(iterator);
-}
-
 
 Print();
 Print();
@@ -82,15 +68,16 @@ Print();
 // print the full analyzed tree
 if(analyzed is ObjectValue obj)
     PrintObject(obj);
-*/
+
+await Task.Delay(-1);
 
 
-
+/*
 var parser = new JsonDocumentIterator(stream);
 var rootElement = parser.Parse();
 var obj = (ObjectValue) rootElement;
 
-PrintObject(obj);
+PrintObject(obj);*/
 
 void Print(object? value = null)
 {
@@ -129,7 +116,8 @@ void PrintValue(IJsonValue value)
         if(value is ObjectValue ov)
             PrintObject(ov);
         else if (value is ArrayValue av)
-            PrintArray(av);
+            Print("Iterator count: " + av.Values.Count() + "\n");
+            //PrintArray(av);
 
         return;
     }
